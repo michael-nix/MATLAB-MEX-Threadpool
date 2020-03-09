@@ -7,8 +7,7 @@
 %   To use this in your MEX file, you need to:
 %      #include "threadpool.h"
 % 
-%   Where yourmex.c should be replaced with the name of the mex file you
-%   wrote.  From there, the only two commands you need to know are:
+%   From there, the only two commands you need to know are:
 %      - AddThreadPoolJob(void (*jobfunc)(void*), void* jobargs);
 %      - SynchronizeThreads();
 % 
@@ -32,6 +31,9 @@
 % 
 %   And then compile your MEX file with:
 %      mex -R2018a yourmex.c threadpool.c
+%
+%   Where yourmex.c should be replaced with the name of the mex file you
+%   wrote.  
 % 
 %   To destroy the thread pool and free up memory, all you need to do is
 %   call CLEAR ALL (not just clear) from the MATLAB command prompt or in
