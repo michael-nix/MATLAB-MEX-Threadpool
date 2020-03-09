@@ -1,5 +1,7 @@
 # Simpler MEX Multi-Threading w/ a Persistent Thread Pool
 
+[![View Simpler MEX Multi-Threading w/ a Persistent Thread Pool on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/71532-simpler-mex-multi-threading-w-a-persistent-thread-pool)
+
 I can't believe this actually worked.
 
 For smaller problems that can't be vectorized, properly setting up multi-threading within a MEX file can create enough overhead that the single-threaded solution is often faster. Using a thread pool eliminates that overhead. The pool is created once, and then can be re-used in multiple calls to your MEX function. The thread pool is then closed out and cleared from memory by typing 'clear all' or 'clear mex' in the command line (or closing MATLAB).
