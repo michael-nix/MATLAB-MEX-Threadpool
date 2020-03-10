@@ -5,7 +5,6 @@
 // in a loop, or calling into the MEX file a lot in a loop.
 //
 //   To use this in your MEX file, you need to:
-//      #include "threadpool.h"
 //      #include "threadpool.c"
 //
 //   From there, the only two commands you need to know are:
@@ -111,7 +110,7 @@ struct ThreadPool {
     // Signals when Queue is free to be modified.
     HANDLE QueueMutex;
     // Event signals when Queue is not empty or memory needs to be cleaned.
-    HANDLE QueueNotEmptyOrCleanup;
+    HANDLE JobReadyOrCleanup;
     // Event signals when a job has finished.
     HANDLE JobFinished;
     
