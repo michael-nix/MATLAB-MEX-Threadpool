@@ -46,6 +46,8 @@
 //   -R2018a to compile my MEX files 'cause that's the way I like it so
 //   I can only say it works on R2018a and above.
 
+#pragma once
+
 #include "mex.h"
 #include <windows.h>
 
