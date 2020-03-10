@@ -6,6 +6,7 @@
 //
 //   To use this in your MEX file, you need to:
 //      #include "threadpool.h"
+//      #include "threadpool.c"
 //
 //   From there, the only two commands you need to know are:
 //      - AddThreadPoolJob(void (*jobfunc)(void*), void* jobargs);
@@ -30,7 +31,7 @@
 //   MEX file otherwise there will be fun results.
 //
 //   And then compile your MEX file with:
-//      mex -R2018a yourmex.c threadpool.c
+//      mex -R2018a yourmex.c
 // 
 //   Where yourmex.c should be replaced with the name of the mex file you
 //   wrote.
