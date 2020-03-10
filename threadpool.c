@@ -66,8 +66,8 @@ struct ThreadPool* InitThreadPool()
     
     // Auto-reset event, initial state is non-signaled since the queue
     // doesn't have any jobs yet--hasn't even been created!
-    ThreadPool -> QueueNotEmptyOrCleanup = CreateEvent(NULL, false, false, NULL);
-    if (ThreadPool -> QueueNotEmptyOrCleanup == NULL) {
+    ThreadPool -> JobReadyOrCleanup = CreateEvent(NULL, false, false, NULL);
+    if (ThreadPool -> JobReadyOrCleanup == NULL) {
         mexErrMsgIdAndTxt("AddThreadPoolJob:EventError", "Error creating event!");
     }
     
@@ -148,7 +148,7 @@ void Push(struct Queue* newnode)
         QueuePtr -> back = newnode;
         QueuePtr -> next = newnode;
         
-        SetEvent(ThreadPool -> QueueNotEmptyOrCleanup);
+        SetEvent(ThreadPool -> JobReadyOrCleanup);
     }
     else {
         QueuePtr -> back -> next = newnode;
@@ -177,7 +177,7 @@ void* Pop()
         QueuePtr -> front = QueuePtr -> next;
         QueuePtr -> next = QueuePtr -> front -> next;
         
-        SetEvent(ThreadPool -> QueueNotEmptyOrCleanup);
+        SetEvent(ThreadPool -> JobReadyOrCleanup);
     }
     
     if (temp != NULL) {
@@ -209,7 +209,7 @@ void CleanupMemory()
 {
     WaitForSingleObject(ThreadPool -> ThreadPoolMutex, INFINITE);
     ThreadPool -> isalive = false;
-    SetEvent(ThreadPool -> QueueNotEmptyOrCleanup);
+    SetEvent(ThreadPool -> JobReadyOrCleanup);
     ReleaseMutex(ThreadPool -> ThreadPoolMutex);
     
     WaitForMultipleObjects(ThreadPool -> nthreads, ThreadPool -> threads, TRUE, INFINITE);
@@ -218,7 +218,7 @@ void CleanupMemory()
     }
     
     CloseHandle(ThreadPool -> JobFinished);
-    CloseHandle(ThreadPool -> QueueNotEmptyOrCleanup);
+    CloseHandle(ThreadPool -> JobReadyOrCleanup);
     CloseHandle(ThreadPool -> QueueMutex);
     CloseHandle(ThreadPool -> ThreadPoolMutex);
     
@@ -250,10 +250,10 @@ unsigned __stdcall ThreadFunction(void* empty)
 {
     while (true)
     {
-        // QueueNotEmptyOrCleanup is signaled when the queue isn't empty 
+        // JobReadyOrCleanup is signaled when the queue isn't empty 
         // after popping a job off (or pushing one on), AND in order to 
         // clean up memory--otherwise all threads will just sit here.
-        WaitForSingleObject(ThreadPool -> QueueNotEmptyOrCleanup, INFINITE);
+        WaitForSingleObject(ThreadPool -> JobReadyOrCleanup, INFINITE);
         
         WaitForSingleObject(ThreadPool -> ThreadPoolMutex, INFINITE);
         if (!(ThreadPool -> isalive)) {
@@ -284,7 +284,7 @@ unsigned __stdcall ThreadFunction(void* empty)
     // only one thread exits its infinite loop, each thread also sets this
     // event to signalled so that other threads can exit and end--one at a
     // time.
-    SetEvent(ThreadPool -> QueueNotEmptyOrCleanup);
+    SetEvent(ThreadPool -> JobReadyOrCleanup);
     
     ReleaseMutex(ThreadPool -> ThreadPoolMutex);
     
