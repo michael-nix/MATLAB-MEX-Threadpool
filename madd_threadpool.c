@@ -4,14 +4,14 @@
 //   with multi-threaded MEX functions in MATLAB.
 //   
 //   Use the following command to build this MEX file:
-//       mex -R2018a madd_threadpool.c threadpool.c
+//       mex -R2018a madd_threadpool.c
 //
 // This is just a companion file to help demonstrate the difference between
 // using the threadpool and basic multithreading.
 #include "mex.h"
 #include "matrix.h"
 #include "math.h"
-#include "threadpool.h"
+#include "threadpool.c"
 
 void multithread_add(void*);
 
@@ -45,14 +45,14 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     plhs[0] = mxCreateNumericArray(ndims, dims, mxDOUBLE_CLASS, mxREAL);
     mxDouble* output = mxGetDoubles(plhs[0]);
     
-//     mxArray* n[1];
-//     mexCallMATLAB(1, n, 0, NULL, "maxNumCompThreads");
-    int nthreads = GetNumThreads();//(int) *mxGetDoubles(n[0]);
+    mxArray* n[1];
+    mexCallMATLAB(1, n, 0, NULL, "maxNumCompThreads");
+    int nthreads = (int) *mxGetDoubles(n[0]);
     
-    int offset = ceil((mxDouble) numel / nthreads);
-    
+    int offset = floor((mxDouble) numel / nthreads);
+        
     struct parameters args[nthreads];
-    
+    SynchronizeThreads();
     for (int i = 0; i < nthreads; i++) {
         args[i].input1 = &input1[i * offset];
         args[i].input2 = &input2[i * offset];
@@ -61,6 +61,14 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         
         AddThreadPoolJob(&multithread_add, &args[i]);
     }
+    
+    struct parameters lastarg;
+    lastarg.input1 = &input1[nthreads * offset];
+    lastarg.input2 = &input2[nthreads * offset];
+    lastarg.output = &output[nthreads * offset];
+    lastarg.numel = numel - nthreads * offset;
+        
+    multithread_add(&lastarg);
     
     SynchronizeThreads();
 }
